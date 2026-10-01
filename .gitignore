@@ -1,0 +1,76 @@
+# =========================
+# Unity generated folders
+# =========================
+[Ll]ibrary/
+[Tt]emp/
+[Oo]bj/
+[Bb]uild/
+[Bb]uilds/
+[Ll]ogs/
+[Uu]ser[Ss]ettings/
+
+# Memory captures
+[Mm]emoryCaptures/
+
+# Asset Store tools
+[Aa]ssets/AssetStoreTools*
+
+# =========================
+# Unity cache / generated
+# =========================
+[Uu]nity[Ll]ockfile
+/[Uu]ser[Ss]ettings/
+
+# =========================
+# IDE / Visual Studio
+# =========================
+.vs/
+.idea/
+.vscode/
+
+*.csproj
+*.sln
+*.suo
+*.user
+*.userprefs
+*.pidb
+*.booproj
+*.svd
+
+# Rider
+.idea/
+*.DotSettings.user
+
+# =========================
+# OS files
+# =========================
+.DS_Store
+Thumbs.db
+
+# =========================
+# Crash reports
+# =========================
+sysinfo.txt
+
+# =========================
+# Build outputs
+# =========================
+*.apk
+*.aab
+*.unitypackage
+
+# Uncomment if you don't want to commit builds
+# /Build/
+# /Builds/
+
+# =========================
+# Addressables generated data
+# =========================
+/Library/com.unity.addressables/aa/
+
+# =========================
+# Secrets / local config
+# =========================
+.env
+.env.*
+!.env.example
