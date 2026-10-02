@@ -78,7 +78,8 @@ public class HeroController : MonoBehaviour
     {
         Vector2Int targetGridPos = gridPosition + direction;
 
-        if (IsWithinBounds(targetGridPos))
+        // Check bounds AND ensure cell isn't occupied (e.g. by Lantern)
+        if (IsWithinBounds(targetGridPos) && !boardManager.IsCellOccupied(targetGridPos))
         {
             gridPosition = targetGridPos;
             targetWorldPosition = GetWorldPosition(gridPosition);
