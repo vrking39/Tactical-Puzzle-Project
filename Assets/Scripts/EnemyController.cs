@@ -21,33 +21,23 @@ public class EnemyController : MonoBehaviour
     }
 
     // Called automatically by TurnManager during Enemy Turn
-    public IEnumerator TakeTurn()
+        public IEnumerator TakeTurn()
     {
-        if (targetLantern == null) 
-        {
-            Debug.LogError("Enemy has no targetLantern assigned!");
-            yield break;
-        }
-
-        if (boardManager == null)
-        {
-            Debug.LogError("Enemy has no boardManager assigned!");
-            yield break;
-        }
-
-        Debug.Log($"Enemy taking turn from {gridPosition} towards {targetLantern.gridPosition}");
+        if (targetLantern == null || boardManager == null) yield break;
 
         Vector2Int lanternPos = targetLantern.gridPosition;
         Vector2Int delta = lanternPos - gridPosition;
 
-        // Check if already adjacent (Distance = 1)
+        // Check if adjacent to Lantern (Manhattan distance == 1)
         if (Mathf.Abs(delta.x) + Mathf.Abs(delta.y) <= 1)
         {
-            Debug.Log("Enemy is adjacent to Lantern! Cannot move closer.");
+            Debug.Log("💥 Enemy attacks the Lantern!");
+            targetLantern.TakeDamage(1);
+            yield return new WaitForSeconds(0.3f);
             yield break;
         }
 
-        // Decide step direction
+        // Decide movement direction toward Lantern
         Vector2Int moveDir = Vector2Int.zero;
         if (Mathf.Abs(delta.x) >= Mathf.Abs(delta.y))
         {
@@ -60,6 +50,7 @@ public class EnemyController : MonoBehaviour
 
         Vector2Int targetGridPos = gridPosition + moveDir;
 
+        // Move if target tile is free
         if (!boardManager.IsCellOccupied(targetGridPos))
         {
             gridPosition = targetGridPos;
@@ -76,10 +67,6 @@ public class EnemyController : MonoBehaviour
             }
 
             transform.position = targetWorldPos;
-        }
-        else
-        {
-            Debug.Log($"Target cell {targetGridPos} is occupied! Enemy holds position.");
         }
     }
 

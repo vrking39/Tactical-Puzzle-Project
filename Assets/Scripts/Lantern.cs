@@ -7,7 +7,7 @@ public class Lantern : MonoBehaviour
     public int currentHealth;
 
     [Header("Grid Position")]
-    public Vector2Int gridPosition = new Vector2Int(3, 3); // Center of a 6x6 board
+    public Vector2Int gridPosition = new Vector2Int(3, 3);
 
     private float tileSize = 1f;
 
@@ -31,6 +31,11 @@ public class Lantern : MonoBehaviour
         if (currentHealth <= 0)
         {
             Debug.Log("Lantern destroyed! GAME OVER");
+            // Direct state check so loss happens instantly
+            if (TurnManager.Instance != null)
+            {
+                TurnManager.Instance.CheckGameOver();
+            }
         }
     }
 
@@ -39,7 +44,7 @@ public class Lantern : MonoBehaviour
         transform.position = new Vector3(
             gridPosition.x * tileSize,
             gridPosition.y * tileSize,
-            -0.5f // Layered slightly in front of background tiles
+            -0.5f
         );
     }
 }
