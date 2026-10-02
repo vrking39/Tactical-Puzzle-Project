@@ -53,8 +53,10 @@ public class HeroController : MonoBehaviour
         HandleInput();
     }
 
-    void HandleInput()
+        void HandleInput()
     {
+        // Prevent input during Enemy Turn
+        if (TurnManager.Instance != null && !TurnManager.Instance.IsPlayerTurn()) return;
         if (Keyboard.current == null) return;
 
         Vector2Int direction = Vector2Int.zero;
@@ -97,4 +99,6 @@ public class HeroController : MonoBehaviour
     {
         return new Vector3(gridPos.x * tileSize, gridPos.y * tileSize, -1f);
     }
+
+
 }

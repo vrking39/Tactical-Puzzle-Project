@@ -6,14 +6,28 @@ public class GameUI : MonoBehaviour
 
     private void OnGUI()
     {
-        if (lantern == null) return;
-
         GUIStyle style = new GUIStyle();
-        style.fontSize = 24;
+        style.fontSize = 22;
         style.normal.textColor = Color.white;
 
-        GUILayout.BeginArea(new Rect(20, 20, 300, 100));
-        GUILayout.Label($"🔥 LANTERN HP: {lantern.currentHealth} / {lantern.maxHealth}", style);
+        GUILayout.BeginArea(new Rect(20, 20, 350, 150));
+
+        if (lantern != null)
+        {
+            GUILayout.Label($"🔥 LANTERN HP: {lantern.currentHealth} / {lantern.maxHealth}", style);
+        }
+
+        if (TurnManager.Instance != null)
+        {
+            GUILayout.Label($"TURN: {TurnManager.Instance.currentTurn} / {TurnManager.Instance.targetSurviveTurns}", style);
+            GUILayout.Label($"STATE: {TurnManager.Instance.currentState}", style);
+            
+            if (TurnManager.Instance.IsPlayerTurn())
+            {
+                GUILayout.Label("[Press SPACE to End Turn]", style);
+            }
+        }
+
         GUILayout.EndArea();
     }
 }
