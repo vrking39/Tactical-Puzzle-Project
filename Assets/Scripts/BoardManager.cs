@@ -9,15 +9,22 @@ public class BoardManager : MonoBehaviour
     [Header("Entities")]
     public Lantern lantern;
     public HeroController hero;
+    public EnemyController enemy; // Drag your enemy instance here
 
     void Start()
     {
         CreateBoard();
 
-        // Initialize lantern size/position if assigned
+        // 1. Initialize Lantern
         if (lantern != null)
         {
             lantern.Init(tileSize);
+        }
+
+        // 2. Initialize Enemy
+        if (enemy != null && lantern != null)
+        {
+            enemy.Init(this, lantern);
         }
     }
 
@@ -39,9 +46,9 @@ public class BoardManager : MonoBehaviour
     // Helper method to check cell accessibility
     public bool IsCellOccupied(Vector2Int gridPos)
     {
-        // Check if lantern is on this tile
-        if (lantern != null && lantern.gridPosition == gridPos)
-            return true;
+        if (lantern != null && lantern.gridPosition == gridPos) return true;
+        if (hero != null && hero.gridPosition == gridPos) return true;
+        if (enemy != null && enemy.gridPosition == gridPos) return true;
 
         return false;
     }

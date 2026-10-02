@@ -1,6 +1,7 @@
 using UnityEngine;
 using UnityEngine.InputSystem;
 
+
 public enum GameState
 {
     PlayerTurn,
@@ -11,6 +12,10 @@ public enum GameState
 
 public class TurnManager : MonoBehaviour
 {
+
+    [Header("References")]
+    public EnemyController enemy;
+    
     public static TurnManager Instance { get; private set; }
 
     [Header("State Settings")]
@@ -54,15 +59,16 @@ public class TurnManager : MonoBehaviour
     private System.Collections.IEnumerator ExecuteEnemyTurn()
     {
         Debug.Log("--- ENEMY TURN START ---");
+        yield return new WaitForSeconds(0.2f);
 
-        // Pause briefly so the enemy turn feels distinct
-        yield return new WaitForSeconds(0.5f);
+        // Run enemy turn action
+        if (enemy != null)
+        {
+            yield return StartCoroutine(enemy.TakeTurn());
+        }
 
-        // Enemy actions will happen here in Step 6 & 7
+        yield return new WaitForSeconds(0.2f);
 
-        yield return new WaitForSeconds(0.5f);
-
-        // Turn complete, progress turn count
         currentTurn++;
         Debug.Log($"--- ENEMY TURN END | ADVANCING TO TURN {currentTurn} ---");
 

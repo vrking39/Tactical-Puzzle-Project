@@ -9,7 +9,7 @@ public class HeroController : MonoBehaviour
     [Header("Movement Settings")]
     public float moveSpeed = 5f;
 
-    private Vector2Int gridPosition = new Vector2Int(0, 0);
+    public Vector2Int gridPosition = new Vector2Int(0, 0);
     private Vector3 targetWorldPosition;
     private bool isMoving = false;
 
