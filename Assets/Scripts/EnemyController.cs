@@ -3,13 +3,22 @@ using UnityEngine;
 
 public class EnemyController : MonoBehaviour
 {
+    [Header("Enemy Stats")]
+    public int maxHealth = 1;
+    public int currentHealth;
+
     [Header("Position & Movement")]
-    public Vector2Int gridPosition = new Vector2Int(5, 5); // Default spawn corner
+    public Vector2Int gridPosition = new Vector2Int(5, 5);
     public float moveSpeed = 5f;
 
     private BoardManager boardManager;
     private Lantern targetLantern;
     private float tileSize = 1f;
+
+    void Awake()
+    {
+        currentHealth = maxHealth;
+    }
 
     public void Init(BoardManager board, Lantern lantern)
     {
@@ -20,15 +29,33 @@ public class EnemyController : MonoBehaviour
         transform.position = GetWorldPosition(gridPosition);
     }
 
-    // Called automatically by TurnManager during Enemy Turn
-        public IEnumerator TakeTurn()
+    public void TakeDamage(int damage)
     {
-        if (targetLantern == null || boardManager == null) yield break;
+        currentHealth -= damage;
+        Debug.Log($"Enemy took {damage} damage! HP left: {currentHealth}");
+
+        if (currentHealth <= 0)
+        {
+            Die();
+        }
+    }
+
+    private void Die()
+    {
+        Debug.Log("Enemy destroyed!");
+        // Clear reference from BoardManager if needed
+        Destroy(gameObject);
+    }
+
+    public IEnumerator TakeTurn()
+    {
+        // If enemy is dead or missing targets, skip
+        if (currentHealth <= 0 || targetLantern == null || boardManager == null) yield break;
 
         Vector2Int lanternPos = targetLantern.gridPosition;
         Vector2Int delta = lanternPos - gridPosition;
 
-        // Check if adjacent to Lantern (Manhattan distance == 1)
+        // Check if adjacent to Lantern
         if (Mathf.Abs(delta.x) + Mathf.Abs(delta.y) <= 1)
         {
             Debug.Log("💥 Enemy attacks the Lantern!");

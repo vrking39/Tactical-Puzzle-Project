@@ -4,12 +4,15 @@ using UnityEngine.InputSystem;
 public class HeroController : MonoBehaviour
 {
     [Header("Board Reference")]
-    public BoardManager boardManager; // Drag your BoardManager GameObject here in the Inspector
+    public BoardManager boardManager;
+
+    [Header("Hero Stats")]
+    public int attackDamage = 1;
 
     [Header("Movement Settings")]
     public float moveSpeed = 5f;
 
-    public Vector2Int gridPosition = new Vector2Int(0, 0);
+    public Vector2Int gridPosition { get; private set; } = new Vector2Int(0, 0);
     private Vector3 targetWorldPosition;
     private bool isMoving = false;
 
@@ -19,12 +22,10 @@ public class HeroController : MonoBehaviour
 
     void Start()
     {
-        // Automatically sync with BoardManager dimensions
         if (boardManager != null)
         {
             tileSize = boardManager.tileSize;
-            // 0 to width - 1 (e.g. 0 to 5 for a width of 6)
-            gridMax = new Vector2Int(boardManager.width - 1, boardManager.height - 1); 
+            gridMax = new Vector2Int(boardManager.width - 1, boardManager.height - 1);
         }
 
         targetWorldPosition = GetWorldPosition(gridPosition);
@@ -53,12 +54,23 @@ public class HeroController : MonoBehaviour
         HandleInput();
     }
 
-        void HandleInput()
+    void HandleInput()
     {
-        // Prevent input during Enemy Turn
         if (TurnManager.Instance != null && !TurnManager.Instance.IsPlayerTurn()) return;
         if (Keyboard.current == null) return;
 
+        // Attack Check (Press 'F' to attack adjacent enemy)
+        if (Keyboard.current.fKey.wasPressedThisFrame)
+        {
+            if (TryAttack())
+            {
+                // Ending turn automatically after attacking
+                TurnManager.Instance.EndPlayerTurn();
+                return;
+            }
+        }
+
+        // Movement Check
         Vector2Int direction = Vector2Int.zero;
 
         if (Keyboard.current.wKey.wasPressedThisFrame)
@@ -76,11 +88,30 @@ public class HeroController : MonoBehaviour
         }
     }
 
+    bool TryAttack()
+    {
+        if (boardManager == null || boardManager.enemy == null) return false;
+
+        EnemyController enemy = boardManager.enemy;
+        Vector2Int enemyPos = enemy.gridPosition;
+        Vector2Int delta = enemyPos - gridPosition;
+
+        // Check if enemy is in an adjacent cardinal tile (distance == 1)
+        if (Mathf.Abs(delta.x) + Mathf.Abs(delta.y) == 1)
+        {
+            Debug.Log("⚔️ Hero attacks the enemy!");
+            enemy.TakeDamage(attackDamage);
+            return true;
+        }
+
+        Debug.Log("No enemy in range to attack!");
+        return false;
+    }
+
     void TryMove(Vector2Int direction)
     {
         Vector2Int targetGridPos = gridPosition + direction;
 
-        // Check bounds AND ensure cell isn't occupied (e.g. by Lantern)
         if (IsWithinBounds(targetGridPos) && !boardManager.IsCellOccupied(targetGridPos))
         {
             gridPosition = targetGridPos;
@@ -99,6 +130,4 @@ public class HeroController : MonoBehaviour
     {
         return new Vector3(gridPos.x * tileSize, gridPos.y * tileSize, -1f);
     }
-
-
 }

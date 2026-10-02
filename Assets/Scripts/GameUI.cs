@@ -10,7 +10,7 @@ public class GameUI : MonoBehaviour
         style.fontSize = 22;
         style.normal.textColor = Color.white;
 
-        GUILayout.BeginArea(new Rect(20, 20, 400, 250));
+        GUILayout.BeginArea(new Rect(20, 20, 450, 250));
 
         if (lantern != null)
         {
@@ -23,7 +23,7 @@ public class GameUI : MonoBehaviour
             
             if (TurnManager.Instance.currentState == GameState.PlayerTurn)
             {
-                GUILayout.Label("[Press SPACE to End Turn]", style);
+                GUILayout.Label("[WASD] Move | [F] Attack Adjacent | [SPACE] Pass Turn", style);
             }
             else if (TurnManager.Instance.currentState == GameState.GameWon)
             {
