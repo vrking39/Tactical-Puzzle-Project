@@ -103,4 +103,10 @@ public class HeroController : MonoBehaviour
         float tileSize = BoardManager.Instance != null ? BoardManager.Instance.tileSize : 1f;
         return new Vector3(gridPos.x * tileSize, gridPos.y * tileSize, -1f);
     }
+
+    public void InitPosition(Vector2Int pos, float size)
+    {
+        gridPosition = pos;
+        transform.position = GetWorldPosition(gridPosition);
+    }
 }

@@ -30,19 +30,11 @@ public class BoardManager : MonoBehaviour
     void Start()
     {
         CreateBoard();
-
-        if (lantern != null)
+        
+    // Trigger level loader if attached
+        if (PuzzleLoader.Instance != null)
         {
-            lantern.Init(tileSize);
-        }
-
-        // Initialize all active enemies
-        foreach (var enemy in enemies)
-        {
-            if (enemy != null)
-            {
-                enemy.Init(this, lantern);
-            }
+            PuzzleLoader.Instance.LoadLevel();
         }
     }
 
