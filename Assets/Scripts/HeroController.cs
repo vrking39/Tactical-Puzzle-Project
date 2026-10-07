@@ -1,13 +1,13 @@
+using System.Collections.Generic;
 using UnityEngine;
-using UnityEngine.InputSystem;
 
 public class HeroController : MonoBehaviour
 {
-    [Header("Board Reference")]
-    public BoardManager boardManager;
+    public static HeroController SelectedHero { get; private set; }
 
     [Header("Hero Stats")]
     public int attackDamage = 1;
+    public int moveRange = 1;
 
     [Header("Movement Settings")]
     public float moveSpeed = 5f;
@@ -16,20 +16,9 @@ public class HeroController : MonoBehaviour
     private Vector3 targetWorldPosition;
     private bool isMoving = false;
 
-    private float tileSize = 1f;
-    private Vector2Int gridMin = Vector2Int.zero;
-    private Vector2Int gridMax;
-
     void Start()
     {
-        if (boardManager != null)
-        {
-            tileSize = boardManager.tileSize;
-            gridMax = new Vector2Int(boardManager.width - 1, boardManager.height - 1);
-        }
-
-        targetWorldPosition = GetWorldPosition(gridPosition);
-        transform.position = targetWorldPosition;
+        transform.position = GetWorldPosition(gridPosition);
     }
 
     void Update()
@@ -47,91 +36,67 @@ public class HeroController : MonoBehaviour
                 transform.position = targetWorldPosition;
                 isMoving = false;
             }
-            
+        }
+    }
+
+    private void OnMouseDown()
+    {
+        if (TurnManager.Instance != null && !TurnManager.Instance.IsPlayerTurn()) return;
+        Select();
+    }
+
+    public void Select()
+    {
+        SelectedHero = this;
+        Debug.Log($"Selected Hero at {gridPosition}");
+    }
+
+    public void Deselect()
+    {
+        if (SelectedHero == this)
+        {
+            SelectedHero = null;
+        }
+    }
+
+    public void OnTileClicked(Vector2Int clickedPos)
+    {
+        if (TurnManager.Instance != null && !TurnManager.Instance.IsPlayerTurn()) return;
+        if (isMoving) return;
+
+        Vector2Int delta = clickedPos - gridPosition;
+        int distance = Mathf.Abs(delta.x) + Mathf.Abs(delta.y);
+
+        // 1. Check if clicking an adjacent enemy to attack
+        EnemyController targetEnemy = BoardManager.Instance.GetEnemyAt(clickedPos);
+        if (targetEnemy != null && distance == 1)
+        {
+            Debug.Log("⚔️ Hero attacks enemy!");
+            targetEnemy.TakeDamage(attackDamage);
+            Deselect();
+            TurnManager.Instance.EndPlayerTurn();
             return;
         }
 
-        HandleInput();
-    }
-
-    void HandleInput()
-    {
-        if (TurnManager.Instance != null && !TurnManager.Instance.IsPlayerTurn()) return;
-        if (Keyboard.current == null) return;
-
-        // Attack Check (Press 'F' to attack adjacent enemy)
-        if (Keyboard.current.fKey.wasPressedThisFrame)
+        // 2. Check if clicking an empty valid adjacent tile to move
+        if (distance <= moveRange && !BoardManager.Instance.IsCellOccupied(clickedPos))
         {
-            if (TryAttack())
-            {
-                // Ending turn automatically after attacking
-                TurnManager.Instance.EndPlayerTurn();
-                return;
-            }
-        }
-
-        // Movement Check
-        Vector2Int direction = Vector2Int.zero;
-
-        if (Keyboard.current.wKey.wasPressedThisFrame)
-            direction = Vector2Int.up;
-        else if (Keyboard.current.sKey.wasPressedThisFrame)
-            direction = Vector2Int.down;
-        else if (Keyboard.current.aKey.wasPressedThisFrame)
-            direction = Vector2Int.left;
-        else if (Keyboard.current.dKey.wasPressedThisFrame)
-            direction = Vector2Int.right;
-
-        if (direction != Vector2Int.zero)
-        {
-            TryMove(direction);
-        }
-    }
-
-    bool TryAttack()
-    {
-        if (BoardManager.Instance == null) return false;
-
-        // Check all 4 adjacent cardinal directions for an enemy
-        Vector2Int[] adjacentDirections = { Vector2Int.up, Vector2Int.down, Vector2Int.left, Vector2Int.right };
-
-        foreach (Vector2Int dir in adjacentDirections)
-        {
-            Vector2Int checkPos = gridPosition + dir;
-            EnemyController targetEnemy = BoardManager.Instance.GetEnemyAt(checkPos);
-
-            if (targetEnemy != null)
-            {
-                Debug.Log("⚔️ Hero attacks the enemy!");
-                targetEnemy.TakeDamage(attackDamage);
-                return true;
-            }
-        }
-
-        Debug.Log("No enemy in range to attack!");
-        return false;
-    }
-    
-    void TryMove(Vector2Int direction)
-    {
-        Vector2Int targetGridPos = gridPosition + direction;
-
-        if (IsWithinBounds(targetGridPos) && !boardManager.IsCellOccupied(targetGridPos))
-        {
-            gridPosition = targetGridPos;
+            gridPosition = clickedPos;
             targetWorldPosition = GetWorldPosition(gridPosition);
             isMoving = true;
-        }
-    }
 
-    bool IsWithinBounds(Vector2Int targetPos)
-    {
-        return targetPos.x >= gridMin.x && targetPos.x <= gridMax.x &&
-               targetPos.y >= gridMin.y && targetPos.y <= gridMax.y;
+            Deselect();
+            TurnManager.Instance.EndPlayerTurn();
+            return;
+        }
+
+        // 3. Clicked somewhere invalid -> Deselect
+        Deselect();
     }
 
     Vector3 GetWorldPosition(Vector2Int gridPos)
     {
+        float tileSize = BoardManager.Instance != null ? BoardManager.Instance.tileSize : 1f;
         return new Vector3(gridPos.x * tileSize, gridPos.y * tileSize, -1f);
     }
 }
