@@ -23,7 +23,7 @@ public class GameUI : MonoBehaviour
             
             if (TurnManager.Instance.currentState == GameState.PlayerTurn)
             {
-                GUILayout.Label("[WASD] Move | [F] Attack Adjacent | [SPACE] Pass Turn", style);
+                GUILayout.Label("Mouse Click to Move | [F] Attack Adjacent | [SPACE] Pass Turn", style);
             }
             else if (TurnManager.Instance.currentState == GameState.GameWon)
             {
