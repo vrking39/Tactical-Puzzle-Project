@@ -90,24 +90,28 @@ public class HeroController : MonoBehaviour
 
     bool TryAttack()
     {
-        if (boardManager == null || boardManager.enemy == null) return false;
+        if (BoardManager.Instance == null) return false;
 
-        EnemyController enemy = boardManager.enemy;
-        Vector2Int enemyPos = enemy.gridPosition;
-        Vector2Int delta = enemyPos - gridPosition;
+        // Check all 4 adjacent cardinal directions for an enemy
+        Vector2Int[] adjacentDirections = { Vector2Int.up, Vector2Int.down, Vector2Int.left, Vector2Int.right };
 
-        // Check if enemy is in an adjacent cardinal tile (distance == 1)
-        if (Mathf.Abs(delta.x) + Mathf.Abs(delta.y) == 1)
+        foreach (Vector2Int dir in adjacentDirections)
         {
-            Debug.Log("⚔️ Hero attacks the enemy!");
-            enemy.TakeDamage(attackDamage);
-            return true;
+            Vector2Int checkPos = gridPosition + dir;
+            EnemyController targetEnemy = BoardManager.Instance.GetEnemyAt(checkPos);
+
+            if (targetEnemy != null)
+            {
+                Debug.Log("⚔️ Hero attacks the enemy!");
+                targetEnemy.TakeDamage(attackDamage);
+                return true;
+            }
         }
 
         Debug.Log("No enemy in range to attack!");
         return false;
     }
-
+    
     void TryMove(Vector2Int direction)
     {
         Vector2Int targetGridPos = gridPosition + direction;

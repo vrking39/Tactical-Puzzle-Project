@@ -6,6 +6,7 @@ public class EnemyController : MonoBehaviour
     [Header("Enemy Stats")]
     public int maxHealth = 1;
     public int currentHealth;
+    public bool isDead { get; private set; } = false;
 
     [Header("Position & Movement")]
     public Vector2Int gridPosition = new Vector2Int(5, 5);
@@ -31,6 +32,8 @@ public class EnemyController : MonoBehaviour
 
     public void TakeDamage(int damage)
     {
+        if (isDead) return;
+
         currentHealth -= damage;
         Debug.Log($"Enemy took {damage} damage! HP left: {currentHealth}");
 
@@ -42,15 +45,21 @@ public class EnemyController : MonoBehaviour
 
     private void Die()
     {
-        Debug.Log("Enemy destroyed!");
-        // Clear reference from BoardManager if needed
-        Destroy(gameObject);
+        isDead = true;
+        Debug.Log("Enemy defeated!");
+        
+        Renderer rend = GetComponent<Renderer>();
+        if (rend != null) rend.enabled = false;
+        
+        gridPosition = new Vector2Int(-999, -999);
     }
 
     public IEnumerator TakeTurn()
     {
-        // If enemy is dead or missing targets, skip
-        if (currentHealth <= 0 || targetLantern == null || boardManager == null) yield break;
+        if (isDead || currentHealth <= 0 || targetLantern == null || boardManager == null) 
+        {
+            yield break;
+        }
 
         Vector2Int lanternPos = targetLantern.gridPosition;
         Vector2Int delta = lanternPos - gridPosition;
@@ -64,7 +73,7 @@ public class EnemyController : MonoBehaviour
             yield break;
         }
 
-        // Decide movement direction toward Lantern
+        // Decide movement direction
         Vector2Int moveDir = Vector2Int.zero;
         if (Mathf.Abs(delta.x) >= Mathf.Abs(delta.y))
         {
@@ -77,7 +86,6 @@ public class EnemyController : MonoBehaviour
 
         Vector2Int targetGridPos = gridPosition + moveDir;
 
-        // Move if target tile is free
         if (!boardManager.IsCellOccupied(targetGridPos))
         {
             gridPosition = targetGridPos;

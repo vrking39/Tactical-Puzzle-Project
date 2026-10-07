@@ -3,7 +3,6 @@ using UnityEngine;
 using UnityEngine.InputSystem;
 using UnityEngine.SceneManagement;
 
-
 public enum GameState
 {
     PlayerTurn,
@@ -15,10 +14,6 @@ public enum GameState
 public class TurnManager : MonoBehaviour
 {
     public static TurnManager Instance { get; private set; }
-
-    [Header("References")]
-    public EnemyController enemy;
-    public Lantern lantern;
 
     [Header("State Settings")]
     public GameState currentState = GameState.PlayerTurn;
@@ -37,7 +32,6 @@ public class TurnManager : MonoBehaviour
 
     private void Update()
     {
-        // Allow restarting at any time with 'R'
         if (Keyboard.current != null && Keyboard.current.rKey.wasPressedThisFrame)
         {
             RestartGame();
@@ -51,8 +45,10 @@ public class TurnManager : MonoBehaviour
             }
         }
     }
+
     public void CheckGameOver()
     {
+        Lantern lantern = BoardManager.Instance != null ? BoardManager.Instance.lantern : null;
         if (lantern != null && lantern.currentHealth <= 0)
         {
             currentState = GameState.GameLost;
@@ -72,16 +68,27 @@ public class TurnManager : MonoBehaviour
     {
         yield return new WaitForSeconds(0.2f);
 
-        if (enemy != null)
+        // Loop through all enemies in BoardManager sequentially
+        if (BoardManager.Instance != null)
         {
-            yield return StartCoroutine(enemy.TakeTurn());
+            for (int i = 0; i < BoardManager.Instance.enemies.Count; i++)
+            {
+                EnemyController enemy = BoardManager.Instance.enemies[i];
+                if (enemy != null && !enemy.isDead)
+                {
+                    yield return StartCoroutine(enemy.TakeTurn());
+                    yield return new WaitForSeconds(0.1f);
+                }
+            }
+
+            // Remove dead enemies from list after turn completion
+            BoardManager.Instance.enemies.RemoveAll(e => e == null || e.isDead);
         }
 
-        // Check if lantern was destroyed during enemy turn
+        // 1. Check Win/Loss conditions
         CheckGameOver();
         if (currentState == GameState.GameLost) yield break;
 
-        // Check if survived required turns
         if (currentTurn >= targetSurviveTurns)
         {
             currentState = GameState.GameWon;
