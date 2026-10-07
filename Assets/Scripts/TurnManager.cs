@@ -89,6 +89,15 @@ public class TurnManager : MonoBehaviour
         CheckGameOver();
         if (currentState == GameState.GameLost) yield break;
 
+        // Win Condition 1: All enemies are defeated
+        if (BoardManager.Instance.enemies.Count == 0)
+        {
+            currentState = GameState.GameWon;
+            Debug.Log("--- VICTORY: ALL ENEMIES DEFEATED! ---");
+            yield break;
+        }
+
+        // Win Condition 2: Survived target turns
         if (currentTurn >= targetSurviveTurns)
         {
             currentState = GameState.GameWon;
