@@ -12,12 +12,16 @@ public class HeroController : MonoBehaviour
     [Header("Movement Settings")]
     public float moveSpeed = 5f;
 
-    public Vector2Int gridPosition { get; private set; } = new Vector2Int(0, 0);
+    [Header("Grid Position")]
+    [SerializeField] private Vector2Int startingGridPosition = new Vector2Int(0, 0);
+
+    public Vector2Int gridPosition { get; private set; }
     private Vector3 targetWorldPosition;
     private bool isMoving = false;
 
     void Start()
     {
+        gridPosition = startingGridPosition; // Set to inspector value on start
         transform.position = GetWorldPosition(gridPosition);
     }
 
