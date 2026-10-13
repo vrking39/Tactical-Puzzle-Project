@@ -14,11 +14,12 @@ public class BoardManager : MonoBehaviour
     public Lantern lantern;
     public List<HeroController> heroes = new List<HeroController>();
     public List<EnemyController> enemies = new List<EnemyController>();
-    public List<Vector2Int> obstacles = new List<Vector2Int>(); // For future walls/rocks
+    public List<Vector2Int> obstacles = new List<Vector2Int>();
+
+    private Dictionary<Vector2Int, TileController> tileMap = new Dictionary<Vector2Int, TileController>();
 
     private void Awake()
     {
-        // Singleton pattern so mouse scripts and AI can query the board easily
         if (Instance != null && Instance != this)
         {
             Destroy(gameObject);
@@ -30,16 +31,21 @@ public class BoardManager : MonoBehaviour
     void Start()
     {
         CreateBoard();
-        
-    // Trigger level loader if attached
+
         if (PuzzleLoader.Instance != null)
         {
-            PuzzleLoader.Instance.LoadLevel();
+            PuzzleLoader.Instance.LoadLevel(0);
+        }
+        else
+        {
+            Debug.LogError("PuzzleLoader Instance not found in the scene! Ensure PuzzleLoader script is attached to a GameObject.");
         }
     }
 
     void CreateBoard()
     {
+        tileMap.Clear();
+
         for (int x = 0; x < width; x++)
         {
             for (int y = 0; y < height; y++)
@@ -50,15 +56,15 @@ public class BoardManager : MonoBehaviour
                 tile.transform.localScale = Vector3.one * (tileSize * 0.9f);
                 tile.transform.SetParent(transform);
 
-                // Add a BoxCollider2D so mouse clicks can detect this tile
                 if (tile.GetComponent<Collider2D>() == null)
                 {
                     tile.AddComponent<BoxCollider2D>();
                 }
 
-                // Attach a script to store tile coordinates for mouse interaction
                 TileController tileScript = tile.AddComponent<TileController>();
                 tileScript.gridPosition = new Vector2Int(x, y);
+
+                tileMap[tileScript.gridPosition] = tileScript;
             }
         }
     }
@@ -81,15 +87,30 @@ public class BoardManager : MonoBehaviour
         return false;
     }
 
-    // Helper method to find an enemy on a specific grid tile
     public EnemyController GetEnemyAt(Vector2Int gridPos)
     {
         return enemies.Find(e => e != null && !e.isDead && e.gridPosition == gridPos);
     }
 
-    // Helper method to find a hero on a specific grid tile
     public HeroController GetHeroAt(Vector2Int gridPos)
     {
         return heroes.Find(h => h != null && h.gridPosition == gridPos);
+    }
+
+    public TileController GetTileAt(Vector2Int gridPos)
+    {
+        if (tileMap.TryGetValue(gridPos, out TileController tile))
+        {
+            return tile;
+        }
+        return null;
+    }
+
+    public void ResetAllTileHighlights()
+    {
+        foreach (var tile in tileMap.Values)
+        {
+            if (tile != null) tile.ResetColor();
+        }
     }
 }

@@ -11,6 +11,7 @@ GameObject:
   - component: {fileID: 4126996104725845637}
   - component: {fileID: 1954376455511686492}
   - component: {fileID: 2138788156537652145}
+  - component: {fileID: 5087203197486675964}
   m_Layer: 0
   m_Name: Lantern
   m_TagString: Untagged
@@ -108,3 +109,15 @@ MonoBehaviour:
   maxHealth: 3
   currentHealth: 0
   gridPosition: {x: 3, y: 3}
+--- !u!114 &5087203197486675964
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 2197124431124265207}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 2655dfbc7be6a42e0a4c2238708a90ce, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::UnitJuice

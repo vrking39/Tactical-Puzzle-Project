@@ -11,6 +11,7 @@ GameObject:
   - component: {fileID: 2921174362562143850}
   - component: {fileID: 8364980758229532965}
   - component: {fileID: 8001011535038053348}
+  - component: {fileID: -1640136602477479688}
   m_Layer: 0
   m_Name: Hero
   m_TagString: Untagged
@@ -108,4 +109,15 @@ MonoBehaviour:
   attackDamage: 1
   moveRange: 1
   moveSpeed: 5
-  startingGridPosition: {x: 1, y: 1}
+--- !u!114 &-1640136602477479688
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 4519544189589494909}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 2655dfbc7be6a42e0a4c2238708a90ce, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::UnitJuice

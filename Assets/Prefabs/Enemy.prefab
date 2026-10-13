@@ -11,6 +11,7 @@ GameObject:
   - component: {fileID: 2383315343990660289}
   - component: {fileID: 7938795847718027926}
   - component: {fileID: 3988748487856183459}
+  - component: {fileID: 4755149836326198670}
   m_Layer: 0
   m_Name: Enemy
   m_TagString: Untagged
@@ -107,5 +108,18 @@ MonoBehaviour:
   m_EditorClassIdentifier: Assembly-CSharp::EnemyController
   maxHealth: 1
   currentHealth: 0
+  moveRange: 1
   gridPosition: {x: 5, y: 5}
   moveSpeed: 5
+--- !u!114 &4755149836326198670
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 8440088320893764162}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 2655dfbc7be6a42e0a4c2238708a90ce, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::UnitJuice

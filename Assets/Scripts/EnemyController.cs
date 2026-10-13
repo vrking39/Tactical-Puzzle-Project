@@ -6,6 +6,7 @@ public class EnemyController : MonoBehaviour
     [Header("Enemy Stats")]
     public int maxHealth = 1;
     public int currentHealth;
+    public int moveRange = 1;
     public bool isDead { get; private set; } = false;
 
     [Header("Position & Movement")]
@@ -37,6 +38,9 @@ public class EnemyController : MonoBehaviour
         currentHealth -= damage;
         Debug.Log($"Enemy took {damage} damage! HP left: {currentHealth}");
 
+        UnitJuice juice = GetComponent<UnitJuice>();
+        if (juice != null) juice.FlashRed();
+
         if (currentHealth <= 0)
         {
             Die();
@@ -47,33 +51,48 @@ public class EnemyController : MonoBehaviour
     {
         isDead = true;
         Debug.Log("Enemy defeated!");
-        
+
         Renderer rend = GetComponent<Renderer>();
         if (rend != null) rend.enabled = false;
-        
+
         gridPosition = new Vector2Int(-999, -999);
     }
 
     public IEnumerator TakeTurn()
     {
-        if (isDead || currentHealth <= 0 || targetLantern == null || boardManager == null) 
+        if (isDead || currentHealth <= 0 || boardManager == null) yield break;
+
+        // Choose target: Lantern or Hero (whichever is closer)
+        Vector2Int targetPos = targetLantern != null ? targetLantern.gridPosition : gridPosition;
+        HeroController hero = boardManager.heroes.Count > 0 ? boardManager.heroes[0] : null;
+
+        if (hero != null && targetLantern != null)
         {
-            yield break;
+            int distToLantern = Mathf.Abs(targetLantern.gridPosition.x - gridPosition.x) + Mathf.Abs(targetLantern.gridPosition.y - gridPosition.y);
+            int distToHero = Mathf.Abs(hero.gridPosition.x - gridPosition.x) + Mathf.Abs(hero.gridPosition.y - gridPosition.y);
+
+            if (distToHero < distToLantern)
+            {
+                targetPos = hero.gridPosition;
+            }
         }
 
-        Vector2Int lanternPos = targetLantern.gridPosition;
-        Vector2Int delta = lanternPos - gridPosition;
+        Vector2Int delta = targetPos - gridPosition;
 
-        // Check if adjacent to Lantern
-        if (Mathf.Abs(delta.x) + Mathf.Abs(delta.y) <= 1)
+        // Attack if adjacent to Lantern
+        if (targetLantern != null && Mathf.Abs(targetLantern.gridPosition.x - gridPosition.x) + Mathf.Abs(targetLantern.gridPosition.y - gridPosition.y) <= 1)
         {
             Debug.Log("💥 Enemy attacks the Lantern!");
+            
+            UnitJuice juice = GetComponent<UnitJuice>();
+            if (juice != null) juice.PunchTowards(targetLantern.transform.position);
+
             targetLantern.TakeDamage(1);
             yield return new WaitForSeconds(0.3f);
             yield break;
         }
 
-        // Decide movement direction
+        // Move toward chosen target
         Vector2Int moveDir = Vector2Int.zero;
         if (Mathf.Abs(delta.x) >= Mathf.Abs(delta.y))
         {

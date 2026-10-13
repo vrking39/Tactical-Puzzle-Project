@@ -28,10 +28,12 @@ public class Lantern : MonoBehaviour
         currentHealth = Mathf.Max(0, currentHealth);
         Debug.Log($"Lantern took damage! HP remaining: {currentHealth}");
 
+        UnitJuice juice = GetComponent<UnitJuice>();
+        if (juice != null) juice.FlashRed();
+
         if (currentHealth <= 0)
         {
             Debug.Log("Lantern destroyed! GAME OVER");
-            // Direct state check so loss happens instantly
             if (TurnManager.Instance != null)
             {
                 TurnManager.Instance.CheckGameOver();

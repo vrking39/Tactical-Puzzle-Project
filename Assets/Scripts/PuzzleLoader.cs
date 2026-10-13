@@ -11,16 +11,46 @@ public class PuzzleLoader : MonoBehaviour
     public GameObject lanternPrefab;
     public GameObject obstaclePrefab;
 
-    [Header("Level Definition (Bottom-to-Top Y index)")]
-    // Row 0 is the bottom row (y=0), Row 5 is the top row (y=5)
-    public string[] levelLayout = new string[]
+    [Header("Current Level Index")]
+    public int currentLevelIndex = 0;
+
+    // List of level layouts:
+    // . = Empty, H = Hero, E = Enemy, L = Lantern, X = Obstacle
+    // Note: Array elements are defined from Y=0 (bottom) to top Y
+    private readonly List<string[]> levels = new List<string[]>()
     {
-        ". . . H . .", // Row 0 (Y=0)
-        ". X . . . .", // Row 1 (Y=1)
-        ". . . L . .", // Row 2 (Y=2)
-        ". . . . . .", // Row 3 (Y=3)
-        ". . X X . .", // Row 4 (Y=4)
-        "E . . . . E"  // Row 5 (Y=5)
+        // --- LEVEL 1: Intro / Tutorial ---
+        new string[]
+        {
+            ". . . H . .", // Y=0
+            ". . . . . .",
+            ". . . L . .",
+            ". . . . . .",
+            ". . . . . .",
+            ". . . E . ."  // Y=5
+        },
+
+        // --- LEVEL 2: Chokepoint ---
+        new string[]
+        {
+            ". . . H . .",
+            ". X . . . .",
+            ". . . L . .",
+            "X X . X X X",
+            ". . . . . .",
+            "E . . . . E"
+        },
+
+        // --- LEVEL 3: Flank Attack ---
+        new string[]
+        {
+            ". . H . . .",
+            ". . . . . .",
+            ". E . L . E",
+            ". . . . . .",
+            ". X . . . X",
+            ". . . E . ."
+        }
     };
 
     private void Awake()
@@ -28,16 +58,22 @@ public class PuzzleLoader : MonoBehaviour
         Instance = this;
     }
 
-    public void LoadLevel()
+    public void LoadLevel(int levelIndex)
     {
-        BoardManager board = BoardManager.Instance;
-        if (board == null) return;
-
-        float tileSize = board.tileSize;
-
-        for (int y = 0; y < levelLayout.Length; y++)
+        if (levelIndex < 0 || levelIndex >= levels.Count)
         {
-            string[] tokens = levelLayout[y].Split(' ');
+            Debug.Log("No more levels! You beat the game.");
+            return;
+        }
+
+        ClearBoard();
+        currentLevelIndex = levelIndex;
+        string[] layout = levels[currentLevelIndex];
+        float tileSize = BoardManager.Instance.tileSize;
+
+        for (int y = 0; y < layout.Length; y++)
+        {
+            string[] tokens = layout[y].Split(' ');
 
             for (int x = 0; x < tokens.Length; x++)
             {
@@ -61,6 +97,30 @@ public class PuzzleLoader : MonoBehaviour
                 }
             }
         }
+
+        Debug.Log($"Loaded Level {currentLevelIndex + 1}");
+    }
+
+    public void LoadNextLevel()
+    {
+        LoadLevel(currentLevelIndex + 1);
+    }
+
+    private void ClearBoard()
+    {
+        BoardManager board = BoardManager.Instance;
+        if (board == null) return;
+
+        // Destroy existing GameObjects
+        foreach (var hero in board.heroes) if (hero != null) Destroy(hero.gameObject);
+        foreach (var enemy in board.enemies) if (enemy != null) Destroy(enemy.gameObject);
+        if (board.lantern != null) Destroy(board.lantern.gameObject);
+
+        // Clear references
+        board.heroes.Clear();
+        board.enemies.Clear();
+        board.obstacles.Clear();
+        board.lantern = null;
     }
 
     private void SpawnHero(Vector2Int pos, float tileSize)

@@ -3,23 +3,21 @@ using UnityEngine;
 public class TileController : MonoBehaviour
 {
     public Vector2Int gridPosition;
+
     private SpriteRenderer spriteRenderer;
-
-    // Visual indicators for selection
     private Color defaultColor = Color.white;
-    private Color highlightColor = new Color(0.2f, 0.8f, 1f, 0.5f); // Light blue for valid move
-    private Color attackColor = new Color(1f, 0.2f, 0.2f, 0.5f);    // Light red for attack target
-
-    private bool isHighlightActive = false;
 
     private void Awake()
     {
         spriteRenderer = GetComponent<SpriteRenderer>();
+        if (spriteRenderer != null)
+        {
+            defaultColor = spriteRenderer.color;
+        }
     }
 
     private void OnMouseDown()
     {
-        // Pass click event to Hero selection logic
         HeroController selectedHero = HeroController.SelectedHero;
 
         if (selectedHero != null)
@@ -28,8 +26,7 @@ public class TileController : MonoBehaviour
         }
         else
         {
-            // Check if clicking on a Hero to select it
-            HeroController clickedHero = BoardManager.Instance.GetHeroAt(gridPosition);
+            HeroController clickedHero = BoardManager.Instance != null ? BoardManager.Instance.GetHeroAt(gridPosition) : null;
             if (clickedHero != null)
             {
                 clickedHero.Select();
@@ -37,18 +34,19 @@ public class TileController : MonoBehaviour
         }
     }
 
-    public void SetHighlight(bool active, bool isAttack = false)
+    public void Highlight(Color color)
     {
-        isHighlightActive = active;
-        if (spriteRenderer == null) return;
+        if (spriteRenderer != null)
+        {
+            spriteRenderer.color = color;
+        }
+    }
 
-        if (!active)
+    public void ResetColor()
+    {
+        if (spriteRenderer != null)
         {
             spriteRenderer.color = defaultColor;
-        }
-        else
-        {
-            spriteRenderer.color = isAttack ? attackColor : highlightColor;
         }
     }
 }
